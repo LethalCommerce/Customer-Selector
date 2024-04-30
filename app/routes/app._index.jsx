@@ -12,6 +12,7 @@ import {
   Text,
   Thumbnail,
   BlockStack,
+  Checkbox,
 } from "@shopify/polaris";
 import { authenticate } from "../shopify.server";
 import { ImageIcon } from "@shopify/polaris-icons";
@@ -19,9 +20,9 @@ import { ImageIcon } from "@shopify/polaris-icons";
 export const loader = async ({ request }) => {
   const { admin } = await authenticate.admin(request);
 
-  const id = getFirst10CustomerList(admin);
+  const emails = getFirst10CustomerList(admin);
 
-  return id;
+  return emails;
 };
 
 async function getFirst10CustomerList(admin) {
@@ -41,14 +42,14 @@ async function getFirst10CustomerList(admin) {
   );
 
   const responseJson = await response.json();
-  const emails = [];
+  const nodes = [];
 
   const edges = responseJson.data.customers.edges;
 
   for (let value of edges) {
-    emails.push(value.node.email);
+    nodes.push(value.node);
   }
-  return emails;
+  return nodes;
 }
 
 export const action = async ({ request }) => {
@@ -121,12 +122,8 @@ export const action = async ({ request }) => {
 export default function Index() {
   const navigate = useNavigate();
 
-  const customerId = useLoaderData();
-  const actionData = useActionData();
-  // const productId = actionData?.product?.id.replace(
-  //   "gid://shopify/Product/",
-  //   "",
-  // );
+  const nodes = useLoaderData();
+  const [selectedCustomers, setSelectedCustomers] = useState([]);
 
   const [productForm, setProductForm] = useState({
     id: null,
@@ -147,15 +144,16 @@ export default function Index() {
     setModal(document.getElementById("my-modal"));
   }, []);
 
-  // useEffect(() => {
-  //   if (productId) {
-  //     shopify.toast.show("Product created");
-  //   }
-  // }, [productId]);
-
   async function selectCustomer() {
-    console.log("select customer");
-    console.log(customerId);
+    console.log(selectedCustomers);
+  }
+
+  function toggleCustomer(name) {
+    setSelectedCustomers((prevCustomers) =>
+      prevCustomers.includes(name)
+        ? prevCustomers.filter((customer) => customer !== name)
+        : [...prevCustomers, name],
+    );
   }
 
   async function selectProduct() {
@@ -221,12 +219,11 @@ export default function Index() {
                 <BlockStack gap="200">
                   <Button
                     onClick={() => {
-                      selectCustomer();
                       modal && modal.show();
                     }}
                     id="select-customer"
                   >
-                    Select Customers Nova
+                    Select Customer
                   </Button>
                 </BlockStack>
               </BlockStack>
@@ -239,7 +236,7 @@ export default function Index() {
                   </Text>
                   {productForm.id ? (
                     <Button variant="plain" onClick={selectProduct}>
-                      Change product
+                      Change Product
                     </Button>
                   ) : null}
                 </InlineStack>
@@ -253,7 +250,7 @@ export default function Index() {
                 ) : (
                   <BlockStack gap="200">
                     <Button onClick={selectProduct} id="select-product">
-                      Select product
+                      Select Product
                     </Button>
                   </BlockStack>
                 )}
@@ -294,15 +291,29 @@ export default function Index() {
               </BlockStack>
             </Card>
             <ui-modal id="my-modal" variant="base">
-              <form data-save-bar>
-                <label>
-                  Name:
-                  <input name="submitted-name" autoComplete="name" />
-                </label>
-                <button onClick={() => modal && modal.hide()}>Save</button>
-              </form>
-              <ui-title-bar>
-                <button variant="primary" onClick={() => modal && modal.hide()}>
+              <BlockStack gap="500">
+                {nodes &&
+                  nodes.map((node, index) => (
+                    <InlineStack blockAlign="center" gap="500" key={index}>
+                      <Checkbox
+                        label={node.displayName}
+                        checked={selectedCustomers.includes(node.displayName)}
+                        onChange={() => toggleCustomer(node.displayName)}
+                      />
+                      <Text variant="headingSm" as="h1">
+                        {node.email}
+                      </Text>
+                    </InlineStack>
+                  ))}{" "}
+              </BlockStack>
+              <ui-title-bar title="Select Customer">
+                <button
+                  variant="primary"
+                  onClick={() => {
+                    selectCustomer();
+                    modal && modal.hide();
+                  }}
+                >
                   Save
                 </button>
                 <button onClick={() => modal && modal.hide()}>Cancel</button>
