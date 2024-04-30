@@ -300,6 +300,18 @@ export default function Index() {
                         checked={selectedCustomers.includes(node.displayName)}
                         onChange={() => toggleCustomer(node.displayName)}
                       />
+                      {/* <input
+                        type="checkbox"
+                        id={`checkbox-${index}`}
+                        onChange={() => toggleCustomer(node.displayName)}
+                        checked={selectedCustomers.includes(node.displayName)}
+                      />
+                      <label htmlFor={`checkbox-${index}`}>
+                        <Text variant="headingMd" as="h1">
+                          {node.displayName}
+                        </Text>
+                      </label> */}
+
                       <Text variant="headingSm" as="h1">
                         {node.email}
                       </Text>
