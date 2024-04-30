@@ -1,0 +1,29 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "adac670b0c41898921bbacf6e5da7622"
+name = "new-test-app"
+handle = "new-test-app-122"
+application_url = "https://either-magazine-lower-dash.trycloudflare.com"
+embedded = true
+
+[build]
+automatically_update_urls_on_dev = true
+dev_store_url = "sdmn-kart-test-1.myshopify.com"
+include_config_on_deploy = true
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "read_customers,write_customers,write_products"
+
+[auth]
+redirect_urls = [
+  "https://either-magazine-lower-dash.trycloudflare.com/auth/callback",
+  "https://either-magazine-lower-dash.trycloudflare.com/auth/shopify/callback",
+  "https://either-magazine-lower-dash.trycloudflare.com/api/auth/callback"
+]
+
+[webhooks]
+api_version = "2024-04"
+
+[pos]
+embedded = false
